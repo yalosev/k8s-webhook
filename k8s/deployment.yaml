@@ -12,10 +12,10 @@ spec:
       labels:
         app: http-webhook-receiver
     spec:
-      serviceAccountName: http-webhook-receiver
+      automountServiceAccountToken: true
       containers:
         - name: http-webhook-receiver
-          image: ghcr.io/yalosev/k8s-webhook:v0.0.2
+          image: ghcr.io/yalosev/k8s-webhook:v0.0.5
           ports:
             - containerPort: 8080
               name: http

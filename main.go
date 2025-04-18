@@ -9,15 +9,13 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/rest"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 )
 
 func main() {
@@ -32,13 +30,25 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+
+	//var kubeconfig *string
+	//if home := homedir.HomeDir(); home != "" {
+	//	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	//} else {
+	//	kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	//}
+	//flag.Parse()
+	//
+	//config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	//if err != nil {
+	//	panic(err)
+	//}
+
 	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	dynamicClient, err := dynamic.NewForConfig(config)
 	if err != nil {
 		panic(err.Error())
 	}
-
-	dCLient := dynamic.New(clientset.RESTClient())
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +71,8 @@ func main() {
 			return
 		}
 
+		fmt.Println("Request body", bodyMap)
+
 		web := &unstructured.Unstructured{Object: map[string]interface{}{
 			"apiVersion": "test.deckhouse.io/v1alpha1",
 			"kind":       "WebhookRequest",
@@ -70,7 +82,7 @@ func main() {
 			"body": bodyMap,
 		}}
 
-		_, err = dCLient.Resource(schema.GroupVersionResource{
+		_, err = dynamicClient.Resource(schema.GroupVersionResource{
 			Group:    "test.deckhouse.io",
 			Version:  "v1alpha1",
 			Resource: "webhookrequests",
