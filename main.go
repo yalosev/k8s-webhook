@@ -77,10 +77,13 @@ func main() {
 			"apiVersion": "test.deckhouse.io/v1alpha1",
 			"kind":       "WebhookRequest",
 			"metadata": map[string]interface{}{
-				"name": name,
+				"name":      name,
+				"namespace": ns,
 			},
 			"body": bodyMap,
 		}}
+
+		fmt.Printf("Created webhook request: %s/%s\n", ns, name)
 
 		_, err = dynamicClient.Resource(schema.GroupVersionResource{
 			Group:    "test.deckhouse.io",

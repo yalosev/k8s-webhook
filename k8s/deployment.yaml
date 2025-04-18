@@ -13,6 +13,7 @@ spec:
         app: http-webhook-receiver
     spec:
       automountServiceAccountToken: true
+      serviceAccountName: webhook
       containers:
         - name: http-webhook-receiver
           image: ghcr.io/yalosev/k8s-webhook:v0.0.5
