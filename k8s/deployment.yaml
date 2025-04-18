@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-webhook-receiver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: http-webhook-receiver
+  template:
+    metadata:
+      labels:
+        app: http-webhook-receiver
+    spec:
+      serviceAccountName: http-webhook-receiver
+      containers:
+        - name: http-webhook-receiver
+          image: ghcr.io/yalosev/k8s-webhook:v0.0.2
+          ports:
+            - containerPort: 8080
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          resources:
+            limits:
+              cpu: 200m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
